@@ -54,7 +54,11 @@
     self.characterCount.text = newText;
 
     // The new text should be allowed? True/False
-    return newText.length < characterLimit;
+    if (newText.length < characterLimit) {
+        return self.characterCount.text = newText;
+    } else {
+        return false;
+    }
 }
 
 /*

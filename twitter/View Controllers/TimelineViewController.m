@@ -154,7 +154,7 @@
 //        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 //        [defaults setObject:detailsTweet forKey:@"details_tweet"];
 //        [defaults synchronize];
-//        detailsViewController.detailsTweet = detailsTweet;
+        detailsViewController.detailsTweet = detailsTweet;
     }
 //     Get the new view controller using [segue destinationViewController].
 //     Pass the selected object to the new view controller.

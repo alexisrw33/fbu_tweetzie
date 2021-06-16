@@ -18,9 +18,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     
+    
+    // when the app launches
+    
     if ([[APIManager shared] isAuthorized]) {
+        // user is already logged in from last time
+        
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        UINavigationController *navigationController = [storyboard instantiateViewControllerWithIdentifier:@"TweetsNavigationController"];
+        UITabBarController *navigationController = [storyboard instantiateViewControllerWithIdentifier:@"TabBarViewController"];
         self.window.rootViewController = navigationController;
     }
     
