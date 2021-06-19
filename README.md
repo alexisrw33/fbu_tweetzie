@@ -54,6 +54,8 @@ Please list two areas of the assignment you'd like to **discuss further with you
 
 Here's a walkthrough of implemented user stories:
 
+<img src='http://g.recordit.co/euhhIK7FRl.gif'>
+
 
 ### Starter project
 The starter project can be found in the `starter-project` tag. Download and run `pod install`.
