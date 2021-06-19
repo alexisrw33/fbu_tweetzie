@@ -1,24 +1,26 @@
 //
-//  TweetCell.m
+//  ProfileTweetCell.m
 //  twitter
 //
-//  Created by Alexis Rojas-Westall on 6/12/21.
+//  Created by Alexis Rojas-Westall on 6/17/21.
 //  Copyright © 2021 Emerson Malca. All rights reserved.
 //
 
-#import "TweetCell.h"
-#import "Tweet.h"
-#import "TimelineViewController.h"
+#import "ProfileTweetCell.h"
 #import "APIManager.h"
+#import "Tweet.h"
 
-@implementation TweetCell
+@implementation ProfileTweetCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
-    self.profilePicture.layer.cornerRadius = self.profilePicture.frame.size.height / 2;
-    self.profilePicture.layer.masksToBounds = YES;
-    self.profilePicture.layer.borderWidth = 2;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
 }
 
 - (void)favoriteTweet {
@@ -64,7 +66,15 @@
              }
     }];
 }
-
+- (IBAction)didTapFav:(id)sender {
+    if (self.tweet.favorited == NO) {
+        [self favoriteRefreshData];
+        [self favoriteTweet];
+    } else {
+        [self favoriteRefreshData];
+        [self unfavoriteTweet];
+    }
+}
 - (IBAction)didTapRetweet:(id)sender {
     if (self.tweet.retweeted == NO) {
         [self retweetRefreshData];
@@ -72,15 +82,6 @@
     } else {
         [self retweetRefreshData];
         [self unRetweetTweet];
-    }
-}
-- (IBAction)didTapFavorite:(id)sender {
-    if (self.tweet.favorited == NO) {
-        [self favoriteRefreshData];
-        [self favoriteTweet];
-    } else {
-        [self favoriteRefreshData];
-        [self unfavoriteTweet];
     }
 }
 
@@ -110,7 +111,7 @@
         number += 1;
         self.favCount.text = [NSString stringWithFormat:@"%ld", (long)number];
         self.tweet.favoriteCount += 1;
-        [self.favoriteButton setImage:[UIImage imageNamed:@"favor-icon-red"] forState:UIControlStateNormal];
+        [self.favButton setImage:[UIImage imageNamed:@"favor-icon-red"] forState:UIControlStateNormal];
         
     } else {
         self.tweet.favorited = NO;
@@ -118,16 +119,8 @@
         number -= 1;
         self.favCount.text = [NSString stringWithFormat:@"%ld", (long)number];
         self.tweet.favoriteCount -= 1;
-        [self.favoriteButton setImage:[UIImage imageNamed:@"favor-icon"] forState:UIControlStateNormal];
+        [self.favButton setImage:[UIImage imageNamed:@"favor-icon"] forState:UIControlStateNormal];
     }
 }
-
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
-}
-
 
 @end

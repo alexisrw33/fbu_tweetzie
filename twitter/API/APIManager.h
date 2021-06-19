@@ -14,7 +14,7 @@
 
 + (instancetype)shared;
 
-- (void)getHomeTimelineWithCompletion:(void(^)(NSArray *tweets, NSError *error))completion;
+- (void)getHomeTimelineWithCompletion: (NSString *)maxId completion:(void(^)(NSArray *tweets, NSError *error))completion;
 
 -(void)getAccountDetails:(void(^)(User *user, NSError *error))completion;
 
@@ -27,5 +27,9 @@
 - (void)retweet:(Tweet *)tweet completion:(void (^)(Tweet *, NSError *))completion;
 
 - (void)unRetweet:(Tweet *)tweet completion:(void (^)(Tweet *, NSError *))completion;
+
+- (void)replyStatusWithText:(NSString *)text replyStatusWithID:(NSString *)tweetID completion:(void (^)(Tweet *, NSError *))completion;
+
+- (void)getUserTimelineWithCompletion: (NSString *)maxId completion: (void(^)(NSArray *tweets, NSError *error))completion;
 
 @end

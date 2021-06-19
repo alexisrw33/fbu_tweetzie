@@ -1,44 +1,48 @@
 //
-//  ComposeViewController.m
+//  ReplyViewController.m
 //  twitter
 //
-//  Created by Alexis Rojas-Westall on 6/14/21.
+//  Created by Alexis Rojas-Westall on 6/17/21.
 //  Copyright © 2021 Emerson Malca. All rights reserved.
 //
 
-#import "ComposeViewController.h"
+#import "ReplyViewController.h"
 #import "APIManager.h"
 #import "Tweet.h"
 
-@interface ComposeViewController ()
+@interface ReplyViewController ()
+@property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (weak, nonatomic) IBOutlet UILabel *textCount;
 
 @end
 
-@implementation ComposeViewController
+@implementation ReplyViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.textView becomeFirstResponder];
-    
     self.textView.delegate = self;
     // Do any additional setup after loading the view.
+    self.textView.text = @"@";
+    
+    self.textView.text = [self.textView.text stringByAppendingString:(@"%@",self.replyTweet.user.screenName)];
 }
-- (void) postTweet {
-    [[APIManager shared] postStatusWithText:self.textView.text completion:^(Tweet *, NSError *) {
+
+- (void)replyToTweet {
+    [[APIManager shared]replyStatusWithText:self.textView.text replyStatusWithID:self.replyTweet.idStr completion:^(Tweet *, NSError *) {
         if (self) {
             NSLog(@"😎😎😎 Successfully posted the tweet");
         } else {
             NSLog(@"😫😫😫 Error posting tweet");
         }
-            
     }];
+    
 }
-
-- (IBAction)onCloseButton:(id)sender {
+- (IBAction)onTweet:(id)sender {
+    [self replyToTweet];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
-- (IBAction)onTweetButton:(id)sender {
-    [self postTweet];
+- (IBAction)onClose:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -55,8 +59,8 @@
 
     // The new text should be allowed? True/False
     if (newText.length < characterLimit) {
-        NSInteger charactersLeft = 140 - newText.length;
-        self.characterCount.text = [NSString stringWithFormat:@"%ld", (long)charactersLeft];
+        NSInteger charactersLeft = (self.textView.text.length + 140 - newText.length);
+        self.textCount.text = [NSString stringWithFormat:@"%ld", (long)charactersLeft];
         return true;
     } else {
         return false;

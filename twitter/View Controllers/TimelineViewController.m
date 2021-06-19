@@ -14,6 +14,8 @@
 #import "AppDelegate.h"
 #import "LoginViewController.h"
 #import "DetailsViewController.h"
+#import "ReplyViewController.h"
+#import "UIImageView+AFNetworking.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate>
 @property (nonatomic, strong) NSMutableArray *arrayOfTweets;
@@ -32,6 +34,7 @@
     [super viewDidLoad];
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
+    self.isMoreDataLoading = false;
     
     
     [self loadTweets];
@@ -45,38 +48,25 @@
 -(void)loadMoreData {
         
     // ... Create the NSURLRequest (myRequest) ...
-    NSURL *url = [NSURL URLWithString:@"https://api.twitter.com/1.1/statuses/home_timeline.json"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-  
-  // Configure session so that completion handler is executed on main UI thread
-  NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-  
-  NSURLSession *session  = [NSURLSession sessionWithConfiguration:configuration delegate:nil delegateQueue:[NSOperationQueue mainQueue]];
- 
-  NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *requestError) {
-      if (requestError != nil) {
-          NSLog(@"%@", [requestError localizedDescription]);
-      }
-      else
-      {
-          // Update flag
-          self.isMoreDataLoading = false;
-          
-          // ... Use the new data to update the data source ...
-          NSMutableArray *dataDictionary = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-          
-          self.arrayOfTweets = dataDictionary;
-          
-          // Reload the tableView now that there is new data
-          [self.tableView reloadData];
-      }
-  }];
-  [task resume];
+    
+    Tweet *lastTweet = self.arrayOfTweets.lastObject;
+    NSString *maxId = lastTweet.idStr;
+    
+    [[APIManager shared] getHomeTimelineWithCompletion:maxId completion:^(NSArray *tweets, NSError *error) {
+        if (tweets) {
+            // Update flag
+            self.isMoreDataLoading = false;
+            
+            // Show new tweets
+            [self.arrayOfTweets addObjectsFromArray:tweets];
+            [self.tableView reloadData];
+        }
+            
+    }];
 }
 
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if(!self.isMoreDataLoading) {
-        self.isMoreDataLoading = true;
         // Calculate the position of one screen length before the bottom of the results
         int scrollViewContentHeight = self.tableView.contentSize.height;
         int scrollOffsetThreshold = scrollViewContentHeight - self.tableView.bounds.size.height;
@@ -92,7 +82,8 @@
 
 - (void)loadTweets {
     // Get timeline
-    [[APIManager shared] getHomeTimelineWithCompletion:^(NSArray *tweets, NSError *error) {
+    
+    [[APIManager shared] getHomeTimelineWithCompletion:NULL completion:^(NSArray *tweets, NSError *error) {
         if (tweets) {
             self.arrayOfTweets = tweets;
             self.tweetCount = tweets.count;
@@ -150,11 +141,25 @@
         UITableViewCell *tappedCell = sender;
         NSIndexPath *indexPath = [self.tableView indexPathForCell:tappedCell];
         Tweet *detailsTweet = self.arrayOfTweets[indexPath.row];
-        DetailsViewController *detailsViewController = [segue destinationViewController];
+        UINavigationController *navController = [segue destinationViewController];
+        DetailsViewController *detailsVC = navController.childViewControllers.firstObject;
 //        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 //        [defaults setObject:detailsTweet forKey:@"details_tweet"];
 //        [defaults synchronize];
-        detailsViewController.detailsTweet = detailsTweet;
+        detailsVC.detailsTweet = detailsTweet;
+    }
+    
+    if ([[segue identifier] isEqualToString:@"replySegue"])
+    {
+        UITableViewCell *tappedCell = sender;
+        NSIndexPath *indexPath = [self.tableView indexPathForCell:tappedCell];
+        Tweet *replyTweet = self.arrayOfTweets[indexPath.row];
+        UINavigationController *navController = [segue destinationViewController];
+        ReplyViewController *replyVC = navController.childViewControllers.firstObject;
+//        NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//        [defaults setObject:detailsTweet forKey:@"details_tweet"];
+//        [defaults synchronize];
+        replyVC.replyTweet = replyTweet;
     }
 //     Get the new view controller using [segue destinationViewController].
 //     Pass the selected object to the new view controller.
@@ -169,10 +174,30 @@
     cell.name.text = tweet.user.name;
     cell.screenName.text = [ @"@" stringByAppendingString:tweet.user.screenName];
     
-//    NSCalendar *calender = [NSCalendar calendarWithIdentifier: kCFGregorianCalendar];
-//    NSDateComponents *dateComponents = [calender dateBySettingUnit:NSCalendarUnitHour value:NSInte ofDate:cell.createdAt options:(NSCalendarOptions)];
-//    NSCalendarUnitYear *year =
+    
+    if (tweet.media_url != nil) {
+        NSString *value = tweet.media_url[0][@"media_url_https"];
+        NSLog(@"%@", value);
+//        CGRect newFrame = cell.imageMedia.frame;
+//        newFrame.size.width = 0;
+//        newFrame.size.height = 0;
+//        [cell.imageMedia setFrame:newFrame];
+        
+//        NSURL *mediaURL = [NSURL URLWithString:value];
+        NSURL *mediaURL = [NSURL URLWithString:value];
+        [cell.imageMedia setImageWithURL:mediaURL];
+    }
+    
     cell.createdAt.text = tweet.createdAtString;
+    NSString *dateString = tweet.createdAtString;
+        
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    // Configure the input format to parse the date string
+    formatter.dateFormat = @"E MMM d HH:mm:ss Z y";
+    // Convert String to Date
+    NSDate *date = [formatter dateFromString:dateString];
+    
+//    cell.createdAt.text = date.shortTimeAgo;
     cell.favCount.text = [NSString stringWithFormat:@"%ld", (long)tweet.favoriteCount];
     cell.retweetCount.text = [NSString stringWithFormat:@"%ld", (long)tweet.retweetCount];
 //    cell.replyCount.text = self.tweet.
@@ -186,6 +211,10 @@
     
     
     return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 - (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {

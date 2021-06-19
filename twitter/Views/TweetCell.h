@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "Tweet.h"
+#import "UIImageView+AFNetworking.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -19,11 +20,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) IBOutlet UIButton *favoriteButton;
 @property (weak, nonatomic) IBOutlet UILabel *tweetText;
 @property (nonatomic, strong) Tweet *tweet;
-@property (weak, nonatomic) IBOutlet UILabel *replyCount;
 @property (weak, nonatomic) IBOutlet UILabel *retweetCount;
 @property (weak, nonatomic) IBOutlet UILabel *favCount;
 @property (weak, nonatomic) IBOutlet UILabel *screenName;
 @property (weak, nonatomic) IBOutlet UILabel *createdAt;
+@property (weak, nonatomic) IBOutlet UIImageView *imageMedia;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightOfMedia;
 
 @end
 

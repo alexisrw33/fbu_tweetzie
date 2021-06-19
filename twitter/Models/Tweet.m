@@ -30,12 +30,21 @@
         NSDictionary *user = dictionary[@"user"];
         self.user = [[User alloc] initWithDictionary:user];
         
+        NSDictionary * entities = dictionary[@"entities"];
+        self.media_url = entities[@"media"];
+
+//        if(media != nil){
+//            self.media_url = media[0][@"media_url_https"];
+//        }
+        
+        
         self.idStr = dictionary[@"id_str"];
         self.text = dictionary[@"text"];
         self.favoriteCount = [dictionary[@"favorite_count"] intValue];
         self.favorited = [dictionary[@"favorited"] boolValue];
         self.retweetCount = [dictionary[@"retweet_count"] intValue];
         self.retweeted = [dictionary[@"retweeted"] boolValue];
+        // self.photoUrl = dictionary[@"entities"][0][@"media_url_https"];
         
         
         // Format createdAt date string
