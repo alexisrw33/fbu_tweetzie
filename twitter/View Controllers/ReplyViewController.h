@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface ReplyViewController : UIViewController
 @property (nonatomic, strong) Tweet *replyTweet;
+@property (nonatomic, weak) id<UITextViewDelegate> delegate;
 
 @end
 

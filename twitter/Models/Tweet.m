@@ -31,11 +31,11 @@
         self.user = [[User alloc] initWithDictionary:user];
         
         NSDictionary * entities = dictionary[@"entities"];
-        self.media_url = entities[@"media"];
+        NSMutableArray *media = entities[@"media"];
 
-//        if(media != nil){
-//            self.media_url = media[0][@"media_url_https"];
-//        }
+        if(media[0][@"media_url_https"] != nil){
+                    self.media_url = media[0][@"media_url_https"];
+                }
         
         
         self.idStr = dictionary[@"id_str"];

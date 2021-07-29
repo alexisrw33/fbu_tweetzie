@@ -25,7 +25,7 @@
     // Do any additional setup after loading the view.
     self.textView.text = @"@";
     
-    self.textView.text = [self.textView.text stringByAppendingString:(@"%@",self.replyTweet.user.screenName)];
+    self.textView.text = [self.textView.text stringByAppendingString:((void)(@"%@"), self.replyTweet.user.screenName)];
 }
 
 - (void)replyToTweet {
@@ -59,7 +59,7 @@
 
     // The new text should be allowed? True/False
     if (newText.length < characterLimit) {
-        NSInteger charactersLeft = (self.textView.text.length + 140 - newText.length);
+        NSInteger charactersLeft = ((self.replyTweet.user.screenName.length + 141) - newText.length);
         self.textCount.text = [NSString stringWithFormat:@"%ld", (long)charactersLeft];
         return true;
     } else {

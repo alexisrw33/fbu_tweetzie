@@ -16,6 +16,7 @@
 #import "DetailsViewController.h"
 #import "ReplyViewController.h"
 #import "UIImageView+AFNetworking.h"
+#import "DateTools.h"
 
 @interface TimelineViewController () <UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate>
 @property (nonatomic, strong) NSMutableArray *arrayOfTweets;
@@ -174,28 +175,30 @@
     cell.name.text = tweet.user.name;
     cell.screenName.text = [ @"@" stringByAppendingString:tweet.user.screenName];
     
-    
-    if (tweet.media_url != nil) {
-        NSString *value = tweet.media_url[0][@"media_url_https"];
-        NSLog(@"%@", value);
-//        CGRect newFrame = cell.imageMedia.frame;
-//        newFrame.size.width = 0;
-//        newFrame.size.height = 0;
-//        [cell.imageMedia setFrame:newFrame];
-        
-//        NSURL *mediaURL = [NSURL URLWithString:value];
-        NSURL *mediaURL = [NSURL URLWithString:value];
+    if ( tweet.media_url != Nil) {
+        NSURL *mediaURL = [NSURL URLWithString:tweet.media_url];
         [cell.imageMedia setImageWithURL:mediaURL];
+    } else {
+        cell.imageMedia.image = Nil;
     }
     
-    cell.createdAt.text = tweet.createdAtString;
+//    cell.createdAt.text = tweet.createdAtString;
     NSString *dateString = tweet.createdAtString;
-        
+//
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     // Configure the input format to parse the date string
     formatter.dateFormat = @"E MMM d HH:mm:ss Z y";
     // Convert String to Date
+    formatter.dateStyle = NSDateFormatterShortStyle;
+    formatter.timeStyle = NSDateFormatterNoStyle;
     NSDate *date = [formatter dateFromString:dateString];
+    
+    NSString *newDate = date.shortTimeAgoSinceNow;
+    NSString *finalDate = [newDate stringByAppendingString:@" ago"];
+    
+    cell.createdAt.text = finalDate;
+    
+    
     
 //    cell.createdAt.text = date.shortTimeAgo;
     cell.favCount.text = [NSString stringWithFormat:@"%ld", (long)tweet.favoriteCount];
